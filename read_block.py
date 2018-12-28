@@ -5,6 +5,11 @@ indexpath = '/Users/zhaoxiangfei/code/testnet/testnet_node/blockchain/database/b
 filepath = '/Users/zhaoxiangfei/code/testnet/testnet_node/blockchain/database/block_num_to_block/blocks'
 
 
+data = "fef0babe"
+bits = ""
+for x in range(0, len(data), 2):
+    bits += chr(int(data[x:x+2], 16))
+
 class Unpackblock:
 
     def __init__(self,index_path,block_path):
@@ -27,6 +32,9 @@ class Unpackblock:
         self.typefun['ripe160'] =self.__unpack_byte20
         self.typefun['authority'] = self.__unpack_authority_struct
         self.typefun['account_options'] = self.__unpack_account_options
+        self.typefun['op_authority'] = self.__unpack_op_authority_struct
+        self.typefun['op_account_options'] = self.__unpack_op_account_options
+
         self.resultfun['01']=self.__unpack_op_result_01
         self.resultfun['03'] = self.__unpack_op_result_03
 
@@ -93,6 +101,16 @@ class Unpackblock:
         print('address_auths:', address_auths.hex())
         return weight_threshold+account_auths+key_auths+account_auths,stream
 
+    def __unpack_op_authority_struct(self,stream):
+        msg,stream = self.__unpack_uint8(stream)
+        if msg[0] == 0:
+            print('authority_exist:',hex(msg[0])[2:].zfill(2))
+            return msg,stream
+        else:
+            print('authority_exist:', hex(msg[0])[2:].zfill(2))
+            msg2,stream = self.__unpack_authority_struct(stream)
+            return msg+msg2,stream
+
     def __unpack_account_options(self,stream):
         memo_key,stream =self.__unpack_public_key(stream)
         print('memo_key:',memo_key.hex())
@@ -108,6 +126,15 @@ class Unpackblock:
         print('extensions:',extensions.hex())
         return memo_key+voting_account+num_witness+num_committee+votes+extensions,stream
 
+    def __unpack_op_account_options(self,stream):
+        msg,stream = self.__unpack_uint8(stream)
+        if msg[0] == 0:
+            print('option_exist:',hex(msg[0])[2:].zfill(2))
+            return msg,stream
+        else:
+            print('option_exist:', hex(msg[0])[2:].zfill(2))
+            msg2,stream = self.__unpack_account_options(stream)
+            return msg+msg2,stream
 
     def __unpack_struct_array(self,stream,type_mode):
         num, offset = self.__unpack_uint_variant(stream)
@@ -275,6 +302,11 @@ if __name__ == '__main__':
     createaccount_dic =({"uint8":'op_code'},{"uint64":"fee_amount"},{"uint" :'fee_id'},{"uint" :'registrar'},{'uint':'referrer'},{'uint16':'referrer_percent'},{'string':'name'},{'authority':'owner'},{'authority':'active'},{'account_options':'options'},{'uint':'op_extensions'})
     obj.reg_op_struct(5,createaccount_dic)
 
+    # 更新账户操作
+    updateacc_dic = (
+    {"uint8": 'op_code'}, {"uint64": "fee_amount"}, {"uint": 'fee_id'}, {"uint": 'account'},{'op_authority':'owner'},{'op_authority':'active'},{'op_account_options': 'options'}, {'uint': 'op_extensions'})
+    obj.reg_op_struct(6,updateacc_dic)
+
     # unpack指定区块
     #obj.unpackblockbynum(9841632)
-    obj.unpackblockbynum(9841632)
+    obj.unpackblockbynum(10023637)
