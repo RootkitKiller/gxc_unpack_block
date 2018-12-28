@@ -20,6 +20,7 @@ class Unpackblock:
         self.typefun['string'] = self.__unpack_string
         self.typefun['bytes']  = self.__unpack_string
         self.typefun['asset_kinds'] =self.__unpack_asset_kinds
+        self.typefun['memo']  = self.__unpack_memo_struct
 
     def __unpack_uint_variant(self,stream):
         by ,v,index = 0 , 0, 0
@@ -36,72 +37,89 @@ class Unpackblock:
 
     def __unpack_uint(self,stream):
         value,index = self.__unpack_uint_variant(stream)
-        return stream[0:index],index
+        return stream[0:index],stream[index:]
 
     def __unpack_uint8(self,stream):
-        return stream[0:1],1
+        return stream[0:1],stream[1:]
 
     def __unpack_uint16(self,stream):
-        return stream[0:2],2
+        return stream[0:2],stream[2:]
 
     def __unpack_uint32(self,stream):
-        return stream[0:4],4
+        return stream[0:4],stream[4:]
 
-    def __unpack_uint64(self,stream,):
-        return stream[0:8],8
+    def __unpack_uint64(self,stream):
+        return stream[0:8],stream[8:]
 
     # string、vector、bytes
     def __unpack_string(self,stream):
         str_size,str_size_offset = self.__unpack_uint_variant(stream)
-        return stream[0:str_size_offset+str_size],str_size_offset+str_size
+        return stream[0:str_size_offset+str_size],stream[str_size_offset+str_size:]
 
     def __unpack_sig(self,stream):
-        return stream[0:65],65
+        return stream[0:65],stream[65:]
 
     def __unpack_op_result(self,stream):
         number, str_offset = self.__unpack_uint_variant(stream)
-        str_res,index = self.__unpack_uint(stream)
-        stream =stream[index:]
+        str_res,stream = self.__unpack_uint(stream)
+        print('op_res_number:',str_res.hex())
         for i in range(0,number):
-            op_res_code,index = self.__unpack_uint(stream)
+            op_res_code,stream = self.__unpack_uint(stream)
+            if op_res_code[0] == 0:
+                break
             print('op_res_code:',op_res_code.hex())
-            stream = stream[index:]
-            billed_cpu_time_us,index = self.__unpack_uint32(stream)
+            billed_cpu_time_us,stream = self.__unpack_uint32(stream)
             print('billed_cpu_time_us:',billed_cpu_time_us.hex())
-            stream = stream[index:]
-            ram_usage_bs,index = self.__unpack_uint32(stream)
+            ram_usage_bs,stream = self.__unpack_uint32(stream)
             print('ram_usage_bs:',ram_usage_bs.hex())
-            stream = stream[index:]
-            fee_amount, index = self.__unpack_uint64(stream)
+            fee_amount, stream = self.__unpack_uint64(stream)
             print('fee_amount:', fee_amount.hex())
-            stream = stream[index:]
-            fee_id, index = self.__unpack_uint(stream)
+            fee_id, stream = self.__unpack_uint(stream)
             print('fee_id:', fee_id.hex())
-            stream =stream[index:]
+        return stream
 
     def __unpack_asset_kinds(self,stream):
         str_num, str_size_offset = self.__unpack_uint_variant(stream)
-        str_asset,index = self.__unpack_uint(stream)
+        str_asset,stream = self.__unpack_uint(stream)
         asset_kinds = str_asset          #资产种类数目
-        stream = stream[index:]
         for i in range(0,str_num):
-            amount,index = self.__unpack_uint64(stream)
-            stream = stream[index:]
-            id,index = self.__unpack_uint(stream)
-            stream = stream[index:]
+            amount,stream = self.__unpack_uint64(stream)
+            id,stream = self.__unpack_uint(stream)
             asset_kinds =asset_kinds +amount +id
-        return asset_kinds,index
+        return asset_kinds,stream
 
     def __unpack_sig_struct(self,stream):
         str_num, str_size_offset = self.__unpack_uint_variant(stream)
-        str_sig,index = self.__unpack_uint(stream)
-        signatures = str_sig
-        stream = stream[index:]
+        str_sig,stream = self.__unpack_uint(stream)
+        signatures = str_sig            # number+sig1+sig2....
         for i in range(0,str_num):
-            sig,index = self.__unpack_sig(stream)
-            stream = stream[index:]
+            sig,stream = self.__unpack_sig(stream)
             signatures =signatures +sig
         return signatures,stream
+
+    def __unpack_public_key(self,stream):
+        return stream[0:33],stream[33:]
+
+    def __unpack_memo_struct(self,stream):
+        str_num, str_size_offset = self.__unpack_uint_variant(stream)
+        str_memo, stream = self.__unpack_uint(stream)
+        print('\n----memo_number:', str_memo.hex())
+        memos = str_memo
+        for i in range(0, str_num):
+            pk_from, stream = self.__unpack_public_key(stream)
+            print('----memo_from_key:',pk_from.hex())
+
+            pk_to, stream = self.__unpack_public_key(stream)
+            print('----memo_to_key:', pk_to.hex())
+
+            nonce, stream = self.__unpack_uint64(stream)
+            print('----memo_nonce:', nonce.hex())
+
+            msg, stream = self.__unpack_string(stream)
+            print('----memo_msg(number+buffer):', msg.hex())
+
+            memos = memos + pk_from + pk_to + nonce +msg
+        return memos, stream
 
     def reg_op_struct(self,op_code,op_struct):
         self.regop[op_code] = op_struct
@@ -128,9 +146,8 @@ class Unpackblock:
             for pair in self.regop[op_code]:
                 (key, value), = pair.items()
                 if key in self.typefun:
-                    curr_buff,index = self.typefun[key](stream)
+                    curr_buff,stream = self.typefun[key](stream)
                     print(value,':',curr_buff.hex())
-                    stream = stream[index:]
                 else :
                     print('not found ',key,' type')
                     break
@@ -138,13 +155,12 @@ class Unpackblock:
         else :
             print('op not found , please reg op')
     def __unpackenderdata(self,stream):
-        ext,index = self.__unpack_uint8(stream)
+        ext,stream = self.__unpack_uint8(stream)
         print('tr_extensions:',ext.hex())  #由于该字段多数区块均为0，所以未处理复杂情况，仅当做单字节处理
-        stream = stream[index:]
         signatures,stream = self.__unpack_sig_struct(stream)
         print('signatures(number+sigs):',signatures.hex())
-        #stream = stream[index:]
-        self.__unpack_op_result(stream)
+        stream = self.__unpack_op_result(stream)
+        return stream
 
     def __unpackblockdata(self,offset,size):
         with open(filepath, 'rb') as file:
@@ -176,11 +192,13 @@ class Unpackblock:
             print('transaction_numbers', hex(transaction_numbers[0])[2:].zfill(2))
             if lines[111] != 0x0:
                 index = 112;
+                stream = lines[112:]
                 for number in range(0, transaction_numbers[0]):
                     print('\n-------------transaction', number + 1, '-----------\n')
-                    tpos_ref = lines[index:index + 11]
                     fmt_tpos_ref = '=HIIB'
-                    ref_block_num, ref_block_prefix, expiration, operation_nums = struct.unpack(fmt_tpos_ref, tpos_ref);
+                    temp_stream =stream[0:11]
+                    ref_block_num, ref_block_prefix, expiration, operation_nums = struct.unpack(fmt_tpos_ref, temp_stream);
+                    stream = stream[11:]
                     print('\n-------------transaction header-----------\n')
                     print('ref_block_num:', hex(ref_block_num)[2:].zfill(4))
                     print('ref_block_prefix:', hex(ref_block_prefix)[2:].zfill(8))
@@ -188,9 +206,9 @@ class Unpackblock:
                     print('operation_nums:', hex(operation_nums)[2:].zfill(2))
                     for op_num in range(0,operation_nums):
                         print('\n-------------opreation-----------\n')
-                        stream = self.__unpackopdata(lines[index+11:],lines[index+11])
+                        stream = self.__unpackopdata(stream,stream[0])
                     print('\n-------------transaction ender-----------\n')
-                    self.__unpackenderdata(stream)
+                    stream = self.__unpackenderdata(stream)
 
     def test(self):
         buffer=b'\x04\x09\x87\x96\x64\x00\x87\x33\x09'
@@ -219,9 +237,13 @@ if __name__ == '__main__':
 
     # 解析部署合约操作
     # todo
+    
     # 解析转账操作
-    # todo
+    transfer_dic = ({"uint8":'op_code'},{"uint64":"fee_amount"},{"uint" :'fee_id'},{"uint" :'from'},{'uint':'to'},{"uint64":"amount_amount"},{"uint" :'amount_id'},{"memo":"memo_num"},{'uint8':'op_extensions'})
+    obj.reg_op_struct(0,transfer_dic)
+
     # ........
 
     # unpack指定区块
-    obj.unpackblockbynum(9974382)
+    #obj.unpackblockbynum(10012266)
+    obj.unpackblockbynum(9912162)
