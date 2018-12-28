@@ -6,7 +6,7 @@
 
 可以解析调用合约操作，其他操作待添加
 
-示例：测试网10001177区块(调用合约operation 75)
+### 调用合约operation 75
 
 ```
 -------------block index-----------
@@ -63,7 +63,7 @@ fee_amount: 6400000000000000
 fee_id: 01
 ```
 
-测试网10012266区块，转账operation 0
+### 转账operation 0
 
 ```
 -------------block index-----------
@@ -120,7 +120,7 @@ tr_extensions: 00
 signatures(number+sigs): 01204928c6b5bd473fa443ffc25c69b19b2d3e478bfa91f377c13595b92349423d0d24ed0017868a2119d6b14463dc142b9aa034b3d175850d3b78a23380eaff3a79
 op_res_number: 01
 ```
-创建账户解析示例：operation 5
+### 创建账户解析示例：operation 5
 ```
 -------------block index-----------
 
@@ -209,4 +209,69 @@ signatures(number+sigs): 012027dafdf11e9ef516d1a52877617788102c4ad2d2cd2f3b3aaa5
 op_res_number: 01
 op_res_code: 01
 c904
+```
+### 更新账户operation 6
+```
+-------------block index-----------
+
+block index data: 08 6e c5 44 00 00 00 00 f8 00 00 00 00 98 f2 d5 3a ce 52 81 a9 80 c7 fd 83 28 27 9e dd 90 5d 04
+pos: 0000000044c56e08
+size: 000000f8
+id: 0098f2d53ace5281a980c7fd8328279edd905d04 
+
+
+
+-------------block header-----------
+
+block raw data: b'0098f2d4a495ebdac0f1aa8c386271185e9853515e1f265c16cbc8f590638de0dffc8e9fc86bcda289242ea653001f03cefa6b1038f6f36a53e0fcbdb9461983bb4f26423377540b36c19208e02bba1a5980479061d015c534f15111668a2bb748d4d0771e0dc1a448630b126e24f701d3f2085cab5c761f265c0106690000000000000001aa0300000103ea4682e184b0cf5fe0232f48cb2c151c6a16e416760abbcb66afcad8c445e7b2050000000000000000011c0216214148abf6592e71e171e7fcb2b6ae3a0a8b79da96d9eb9908390222d9624c0ad3a5afa099a7dffd56c100e81d4383172ad0ad7fe4e5c2d42071d9acc0680100'
+
+previous: 0098f2d4a495ebdac0f1aa8c386271185e985351
+timestamp: 5c261f5e
+witness: 16
+transaction_merkle_root: cbc8f590638de0dffc8e9fc86bcda289242ea653
+extensions 00
+witness_signature: 1f03cefa6b1038f6f36a53e0fcbdb9461983bb4f26423377540b36c19208e02bba1a5980479061d015c534f15111668a2bb748d4d0771e0dc1a448630b126e24f7
+transaction_numbers 01
+
+-------------transaction 1 -----------
+
+
+-------------transaction header-----------
+
+ref_block_num: f2d3
+ref_block_prefix: 5cab5c08
+expiration: 5c261f76
+operation_nums: 01
+
+-------------opreation-----------
+
+op_code : 06
+fee_amount : 6900000000000000
+fee_id : 01
+account : aa03
+authority_exist: 00
+owner : 00
+authority_exist: 00
+active : 00
+option_exist: 01
+memo_key: 03ea4682e184b0cf5fe0232f48cb2c151c6a16e416760abbcb66afcad8c445e7b2
+voting_account: 05
+num_witness: 0000
+num_committee: 0000
+
+**** size: 00
+votes: 00
+extensions: 00
+options : 0103ea4682e184b0cf5fe0232f48cb2c151c6a16e416760abbcb66afcad8c445e7b205000000000000
+op_extensions : 00
+
+-------------transaction ender-----------
+
+tr_extensions: 00
+
+**** size: 01
+**** signtures : 1c0216214148abf6592e71e171e7fcb2b6ae3a0a8b79da96d9eb9908390222d9624c0ad3a5afa099a7dffd56c100e81d4383172ad0ad7fe4e5c2d42071d9acc068
+signatures(number+sigs): 011c0216214148abf6592e71e171e7fcb2b6ae3a0a8b79da96d9eb9908390222d9624c0ad3a5afa099a7dffd56c100e81d4383172ad0ad7fe4e5c2d42071d9acc068
+op_res_number: 01
+op_res_code: 00
 ```
