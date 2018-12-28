@@ -6,7 +6,7 @@
 
 可以解析调用合约操作，其他操作待添加
 
-示例：测试网10001177区块
+示例：测试网10001177区块(调用合约operation)
 
 ```
 -------------block index-----------
@@ -61,4 +61,62 @@ billed_cpu_time_us: 7f000000
 ram_usage_bs: 00000000
 fee_amount: 6400000000000000
 fee_id: 01
+```
+
+测试网10012266区块，转账操作，包含memo
+
+```
+-------------block index-----------
+
+block index data: 54 df 92 44 00 00 00 00 34 01 00 00 00 98 c6 6a d2 f4 b3 e1 5b e3 4a d8 6f a5 9f c7 4d d8 ca 16
+pos: 000000004492df54
+size: 00000134
+id: 0098c66ad2f4b3e15be34ad86fa59fc74dd8ca16 
+
+
+block raw data: b'0098c6699f6e528fab47de618a9104cf853299437a85255c148df8d7f03cae0763e86367b40a8a144271b2fbc900204be6dc1b72615c7a96290af6e56f7bcef0074fef562e0a248abceec1c84a945124c52f36950d3056932b060417b3039eaeff55c710c9235b397d99677979357c0169c69f6e528f8885255c01009b0400000000000001aa03c909a086010000000000010103ea4682e184b0cf5fe0232f48cb2c151c6a16e416760abbcb66afcad8c445e7b202f01f619e03b84bb81db3461474e5a7a32166d4f7b131394442f371f8a2c09020c48a5591f26701001040ca24cd4fdd0fc1314115442ffce41f000001204928c6b5bd473fa443ffc25c69b19b2d3e478bfa91f377c13595b92349423d0d24ed0017868a2119d6b14463dc142b9aa034b3d175850d3b78a23380eaff3a79010'
+
+-------------block header-----------
+
+previous: 0098c6699f6e528fab47de618a9104cf85329943
+timestamp: 5c25857a
+witness: 14
+transaction_merkle_root: 8df8d7f03cae0763e86367b40a8a144271b2fbc9
+extensions 00
+witness_signature: 204be6dc1b72615c7a96290af6e56f7bcef0074fef562e0a248abceec1c84a945124c52f36950d3056932b060417b3039eaeff55c710c9235b397d99677979357c
+transaction_numbers 01
+
+-------------transaction 1 -----------
+
+
+-------------transaction header-----------
+
+ref_block_num: c669
+ref_block_prefix: 8f526e9f
+expiration: 5c258588
+operation_nums: 01
+
+-------------opreation-----------
+
+op_code : 00
+fee_amount : 9b04000000000000
+fee_id : 01
+from : aa03
+to : c909
+amount_amount : a086010000000000
+amount_id : 01
+
+----memo_number: 01
+----memo_from_key: 03ea4682e184b0cf5fe0232f48cb2c151c6a16e416760abbcb66afcad8c445e7b2
+----memo_to_key: 02f01f619e03b84bb81db3461474e5a7a32166d4f7b131394442f371f8a2c09020
+----memo_nonce: c48a5591f2670100
+----memo_msg(number+buffer): 1040ca24cd4fdd0fc1314115442ffce41f
+memo_num : 0103ea4682e184b0cf5fe0232f48cb2c151c6a16e416760abbcb66afcad8c445e7b202f01f619e03b84bb81db3461474e5a7a32166d4f7b131394442f371f8a2c09020c48a5591f26701001040ca24cd4fdd0fc1314115442ffce41f
+op_extensions : 00
+
+-------------transaction ender-----------
+
+tr_extensions: 00
+signatures(number+sigs): 01204928c6b5bd473fa443ffc25c69b19b2d3e478bfa91f377c13595b92349423d0d24ed0017868a2119d6b14463dc142b9aa034b3d175850d3b78a23380eaff3a79
+op_res_number: 01
 ```
