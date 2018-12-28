@@ -120,3 +120,93 @@ tr_extensions: 00
 signatures(number+sigs): 01204928c6b5bd473fa443ffc25c69b19b2d3e478bfa91f377c13595b92349423d0d24ed0017868a2119d6b14463dc142b9aa034b3d175850d3b78a23380eaff3a79
 op_res_number: 01
 ```
+创建账户解析示例：operation 5
+```
+-------------block index-----------
+
+block index data: 2d bf 3c 43 00 00 00 00 5f 01 00 00 00 96 2b e0 be 47 be be 4e 3b 11 14 e1 6f 0a 70 99 55 eb 14
+pos: 00000000433cbf2d
+size: 0000015f
+id: 00962be0be47bebe4e3b1114e16f0a709955eb14 
+
+
+
+-------------block header-----------
+
+block raw data: b'00962bdff6226c046984db0f5205c90d70c95f01b2981c5c260de9f4e5a6b0c2643441549da4cf11b1683cabc0001f05b54ea6bb69e04b9cd99b670ccc641c8b373017b0ca506a3628ed52409418313c2e2e972d13e8317f4fa64adb9dd3f1ef9d5f2135291070de2f799a5fb5425601df2bf6226c04cd981c5c0105660000000000000001fb01fb010000097a68616f2d31323132010000000001034f12dcf134d5f63bef5accb42950ff11d47d0cf2b8e2e58abe5d7fe29cca6a2601000001000000000102f01f619e03b84bb81db3461474e5a7a32166d4f7b131394442f371f8a2c0902001000002f01f619e03b84bb81db3461474e5a7a32166d4f7b131394442f371f8a2c09020050000000000000000012027dafdf11e9ef516d1a52877617788102c4ad2d2cd2f3b3aaa5ba6e36ff7c52960dfb095f13394647b095a9bbd30da251afad7edfe68824ae396f09860333bbe0101c904000000000201'
+
+previous: 00962bdff6226c046984db0f5205c90d70c95f01
+timestamp: 5c1c98b2
+witness: 26
+transaction_merkle_root: 0de9f4e5a6b0c2643441549da4cf11b1683cabc0
+extensions 00
+witness_signature: 1f05b54ea6bb69e04b9cd99b670ccc641c8b373017b0ca506a3628ed52409418313c2e2e972d13e8317f4fa64adb9dd3f1ef9d5f2135291070de2f799a5fb54256
+transaction_numbers 01
+
+-------------transaction 1 -----------
+
+
+-------------transaction header-----------
+
+ref_block_num: 2bdf
+ref_block_prefix: 046c22f6
+expiration: 5c1c98cd
+operation_nums: 01
+
+-------------opreation-----------
+
+op_code : 05
+fee_amount : 6600000000000000
+fee_id : 01
+registrar : fb01
+referrer : fb01
+referrer_percent : 0000
+name : 097a68616f2d31323132
+weight_threshold: 01000000
+
+**** size: 00
+account_auths: 00
+
+**** size: 01
+**** public_key_type : 034f12dcf134d5f63bef5accb42950ff11d47d0cf2b8e2e58abe5d7fe29cca6a26
+**** weight_type : 0100
+key_auths: 01034f12dcf134d5f63bef5accb42950ff11d47d0cf2b8e2e58abe5d7fe29cca6a260100
+
+**** size: 00
+address_auths: 00
+owner : 010000000001034f12dcf134d5f63bef5accb42950ff11d47d0cf2b8e2e58abe5d7fe29cca6a26010000
+weight_threshold: 01000000
+
+**** size: 00
+account_auths: 00
+
+**** size: 01
+**** public_key_type : 02f01f619e03b84bb81db3461474e5a7a32166d4f7b131394442f371f8a2c09020
+**** weight_type : 0100
+key_auths: 0102f01f619e03b84bb81db3461474e5a7a32166d4f7b131394442f371f8a2c090200100
+
+**** size: 00
+address_auths: 00
+active : 01000000000102f01f619e03b84bb81db3461474e5a7a32166d4f7b131394442f371f8a2c09020010000
+memo_key: 02f01f619e03b84bb81db3461474e5a7a32166d4f7b131394442f371f8a2c09020
+voting_account: 05
+num_witness: 0000
+num_committee: 0000
+
+**** size: 00
+votes: 00
+extensions: 00
+options : 02f01f619e03b84bb81db3461474e5a7a32166d4f7b131394442f371f8a2c0902005000000000000
+op_extensions : 00
+
+-------------transaction ender-----------
+
+tr_extensions: 00
+
+**** size: 01
+**** signtures : 2027dafdf11e9ef516d1a52877617788102c4ad2d2cd2f3b3aaa5ba6e36ff7c52960dfb095f13394647b095a9bbd30da251afad7edfe68824ae396f09860333bbe
+signatures(number+sigs): 012027dafdf11e9ef516d1a52877617788102c4ad2d2cd2f3b3aaa5ba6e36ff7c52960dfb095f13394647b095a9bbd30da251afad7edfe68824ae396f09860333bbe
+op_res_number: 01
+op_res_code: 01
+c904
+```
