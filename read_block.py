@@ -28,6 +28,7 @@ class Unpackblock:
         self.typefun['asset_kinds'] =self.__unpack_asset_kinds
         self.typefun['memo']  = self.__unpack_memo_struct
         self.typefun['sig'] = self.__unpack_sig
+        self.typefun['sigs'] =self.__unpack_sigs
         self.typefun['pk'] = self.__unpack_public_key
         self.typefun['ripe160'] =self.__unpack_byte20
         self.typefun['authority'] = self.__unpack_authority_struct
@@ -86,53 +87,58 @@ class Unpackblock:
                                                  {'amount': 'uint64', 'id': 'uint'})
         return msg,stream
 
+    def __unpack_sigs(self,stream):
+        msg, stream = self.__unpack_struct_array(stream,
+                                                 {'signtures': 'sig'})
+        return msg,stream
+
     def __unpack_memo_struct(self,stream):
         msg,stream =self.__unpack_struct_array(stream,{'memo_from_key':'pk','memo_to_key':'pk','memo_nonce':'uint64','memo_msg(number+buffer':'string'})
         return msg, stream
 
     def __unpack_authority_struct(self,stream):
         weight_threshold ,stream= self.__unpack_uint32(stream)
-        print('weight_threshold:',weight_threshold.hex())
+        print('---weight_threshold:',weight_threshold.hex())
         account_auths,stream =self.__unpack_struct_array(stream,{'account_id_type':'uint','weight_type':'uint16'})
-        print('account_auths:',account_auths.hex())
+        print('---account_auths:',account_auths.hex())
         key_auths, stream = self.__unpack_struct_array(stream, {'public_key_type': 'pk', 'weight_type': 'uint16'})
-        print('key_auths:', key_auths.hex())
+        print('---key_auths:', key_auths.hex())
         address_auths, stream = self.__unpack_struct_array(stream, {'address': 'ripe160', 'weight_type': 'uint16'})
-        print('address_auths:', address_auths.hex())
+        print('---address_auths:', address_auths.hex())
         return weight_threshold+account_auths+key_auths+account_auths,stream
 
     def __unpack_op_authority_struct(self,stream):
         msg,stream = self.__unpack_uint8(stream)
         if msg[0] == 0:
-            print('authority_exist:',hex(msg[0])[2:].zfill(2))
+            print('*** authority_exist:',hex(msg[0])[2:].zfill(2))
             return msg,stream
         else:
-            print('authority_exist:', hex(msg[0])[2:].zfill(2))
+            print('*** authority_exist:', hex(msg[0])[2:].zfill(2))
             msg2,stream = self.__unpack_authority_struct(stream)
             return msg+msg2,stream
 
     def __unpack_account_options(self,stream):
         memo_key,stream =self.__unpack_public_key(stream)
-        print('memo_key:',memo_key.hex())
+        print('---memo_key:',memo_key.hex())
         voting_account,stream =self.__unpack_uint(stream)
-        print('voting_account:',voting_account.hex())
+        print('---voting_account:',voting_account.hex())
         num_witness,stream =self.__unpack_uint16(stream)
-        print('num_witness:',num_witness.hex())
+        print('---num_witness:',num_witness.hex())
         num_committee,stream =self.__unpack_uint16(stream)
-        print('num_committee:',num_committee.hex())
+        print('---num_committee:',num_committee.hex())
         votes,stream =self.__unpack_struct_array(stream,{'vote_id':'uint32'})
-        print('votes:',votes.hex())
+        print('---votes:',votes.hex())
         extensions,stream = self.__unpack_uint(stream)
-        print('extensions:',extensions.hex())
+        print('---extensions:',extensions.hex())
         return memo_key+voting_account+num_witness+num_committee+votes+extensions,stream
 
     def __unpack_op_account_options(self,stream):
         msg,stream = self.__unpack_uint8(stream)
         if msg[0] == 0:
-            print('option_exist:',hex(msg[0])[2:].zfill(2))
+            print('*** option_exist:',hex(msg[0])[2:].zfill(2))
             return msg,stream
         else:
-            print('option_exist:', hex(msg[0])[2:].zfill(2))
+            print('*** option_exist:', hex(msg[0])[2:].zfill(2))
             msg2,stream = self.__unpack_account_options(stream)
             return msg+msg2,stream
 
@@ -140,7 +146,7 @@ class Unpackblock:
         num, offset = self.__unpack_uint_variant(stream)
         str_msg, stream = self.__unpack_uint(stream)
         msgs = str_msg
-        print('\n**** size:',str_msg.hex())
+        print('*** size:',str_msg.hex())
         for i in range(0,num):
             for key,value in type_mode.items():
                 msg,stream = self.typefun[value](stream)
@@ -155,11 +161,11 @@ class Unpackblock:
 
     def __unpack_op_result_03(self,stream):
         billed_cpu_time_us, stream = self.__unpack_uint32(stream)
-        print('billed_cpu_time_us:', billed_cpu_time_us.hex())
+        print('---billed_cpu_time_us:', billed_cpu_time_us.hex())
         ram_usage_bs, stream = self.__unpack_uint32(stream)
-        print('ram_usage_bs:', ram_usage_bs.hex())
+        print('---ram_usage_bs:', ram_usage_bs.hex())
         fee_amount, stream = self.__unpack_uint64(stream)
-        print('fee_amount:', fee_amount.hex())
+        print('---fee_amount:', fee_amount.hex())
         fee_id, stream = self.__unpack_uint(stream)
         print('fee_id:', fee_id.hex())
         return billed_cpu_time_us+ram_usage_bs+fee_amount+fee_id,stream
@@ -287,25 +293,29 @@ if __name__ == '__main__':
 
     obj = Unpackblock(indexpath,filepath)
 
-    # 解析调用合约操作
+    # 解析调用合约operation
     callcontract_dic = ({"uint8" :'op_code'},{"uint64":'fee_amount'},{"uint" :'fee_id'},{"uint" :'account'},{'uint':'contract_id'},{'asset_kinds':'asset_num'},{'uint64':'method_name'},{'string':'data(size+buffer)'},{'uint8':'op_extensions'})
     obj.reg_op_struct(75,callcontract_dic)
 
     # 解析部署合约操作
     # todo
 
-    # 解析转账操作
+    # 解析转账operation
     transfer_dic = ({"uint8":'op_code'},{"uint64":"fee_amount"},{"uint" :'fee_id'},{"uint" :'from'},{'uint':'to'},{"uint64":"amount_amount"},{"uint" :'amount_id'},{"memo":"memo"},{'uint8':'op_extensions'})
     obj.reg_op_struct(0,transfer_dic)
 
-    # 解析创建账户操作
+    # 解析创建账户operation
     createaccount_dic =({"uint8":'op_code'},{"uint64":"fee_amount"},{"uint" :'fee_id'},{"uint" :'registrar'},{'uint':'referrer'},{'uint16':'referrer_percent'},{'string':'name'},{'authority':'owner'},{'authority':'active'},{'account_options':'options'},{'uint':'op_extensions'})
     obj.reg_op_struct(5,createaccount_dic)
 
-    # 更新账户操作
+    # 更新账户operation
     updateacc_dic = (
     {"uint8": 'op_code'}, {"uint64": "fee_amount"}, {"uint": 'fee_id'}, {"uint": 'account'},{'op_authority':'owner'},{'op_authority':'active'},{'op_account_options': 'options'}, {'uint': 'op_extensions'})
     obj.reg_op_struct(6,updateacc_dic)
+
+    # 代理转账operation
+    proxy_dic = ({'string':'proxy_memo'},{'uint64':'fee_amount'},{'uint':'fee_id'},{'uint':'re_from'},{'uint':'re_to'},{'uint':'proxy_account'},{'uint64':'amo_amount'},
+                 {'uint':'amo_id'},{'uint16':'percentage'},{'string':'memo'},{'uint32':'expiration'},{'sigs':'signatures'},{'uint':'op_extensions'})
 
     # unpack指定区块
     #obj.unpackblockbynum(9841632)
